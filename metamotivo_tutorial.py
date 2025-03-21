@@ -10,7 +10,7 @@ from metamotivo.fb_cpr.huggingface import FBcprModel
 from huggingface_hub import hf_hub_download
 from humenv import make_humenv
 import gymnasium
-from gymnasium.wrappers import FlattenObservation, TransformObservation
+from gymnasium.wrappers import FlattenObservation, TransformObservation, RecordEpisodeStatistics, RecordVideo
 from metamotivo.buffers.buffers import DictBuffer
 from humenv.env import make_from_name
 from humenv import rewards as humenv_rewards
@@ -21,6 +21,7 @@ import math
 import h5py
 from pathlib import Path
 import numpy as np
+import os
 
 # ## Model download
 # The first step is to download the model. We show how to use HuggingFace hub for that.
@@ -43,11 +44,17 @@ else:
             env, lambda obs: torch.tensor(obs.reshape(1, -1), dtype=torch.float32, device=device), env.observation_space
         )
 
+# Create video directory if it doesn't exist
+video_dir = os.path.join(os.getcwd(), "videos")
+os.makedirs(video_dir, exist_ok=True)
+
 env, _ = make_humenv(
     num_envs=1,
     wrappers=[
         FlattenObservation,
         transform_obs_wrapper,
+        RecordEpisodeStatistics,
+        lambda env: RecordVideo(env, video_dir, episode_trigger=lambda x: True)  # Record every episode
     ],
     state_init="Default",
 )
@@ -58,13 +65,15 @@ print(f"embedding size {z.shape}")
 print(f"z norm: {torch.norm(z)}")
 print(f"z norm / sqrt(d): {torch.norm(z) / math.sqrt(z.shape[-1])}")
 observation, _ = env.reset()
-frames = [env.render()]
+
+# Run the episode and let RecordVideo wrapper handle recording
 for i in range(30):
     action = model.act(observation, z, mean=True)
     observation, reward, terminated, truncated, info = env.step(action.cpu().numpy().ravel())
-    frames.append(env.render())
+    if terminated or truncated:
+        observation, _ = env.reset()
 
-media.show_video(frames, fps=30)
+print(f"Video recording saved to {video_dir}")
 
 # ### Computing Q-functions
 # 
@@ -165,14 +174,29 @@ z = model.reward_wr_inference(
 )
 print(z.shape)
 
-observation, _ = env.reset()
-frames = [env.render()]
+# Create a new environment with RecordVideo wrapper for reward prompt example
+reward_video_dir = os.path.join(os.getcwd(), "videos_reward_prompt")
+os.makedirs(reward_video_dir, exist_ok=True)
+
+env_reward, _ = make_humenv(
+    num_envs=1,
+    wrappers=[
+        FlattenObservation,
+        transform_obs_wrapper,
+        RecordEpisodeStatistics,
+        lambda env: RecordVideo(env, reward_video_dir, episode_trigger=lambda x: True)
+    ],
+    state_init="Default",
+)
+
+observation, _ = env_reward.reset()
 for i in range(30):
     action = model.act(observation, z, mean=True)
-    observation, reward, terminated, truncated, info = env.step(action.cpu().numpy().ravel())
-    frames.append(env.render())
+    observation, reward, terminated, truncated, info = env_reward.step(action.cpu().numpy().ravel())
+    if terminated or truncated:
+        observation, _ = env_reward.reset()
 
-media.show_video(frames, fps=30)
+print(f"Reward prompt video recording saved to {reward_video_dir}")
 
 # Let's compute the **Q-function** for this policy.
 z_reward = torch.sum(
@@ -199,24 +223,38 @@ goal_qpos = np.array([0.13769039,-0.20029453,0.42305034,0.21707786,0.94573617,0.
 ,-0.23456622,-0.12406075,-0.04466465,0.2311667,-0.12232673,-0.25614032
 ,-0.36237662,0.11197906,-0.08259534,-0.634934,-0.30822742,-0.93798716
 ,0.08848668,0.4083417,-0.30910404,0.40950143,0.30815359,0.03266103
-,1.03959336,-0.19865537,0.25149713,0.3277561,0.16943092,0.69125975
+,1.03959336,-0.19865537,0.25149713,0.3277561,0.16943092,0.6912597
 ,0.21721349,-0.30871948,0.88890484,-0.08884043,0.38474549,0.30884107
 ,-0.40933304,0.30889523,-0.29562966,-0.6271498])
 env.unwrapped.set_physics(qpos=goal_qpos, qvel=np.zeros(75))
 goal_obs = torch.tensor(env.unwrapped.get_obs()["proprio"].reshape(1,-1), device=model.cfg.device, dtype=torch.float32)
 print("goal pose")
-media.show_image(env.render())
 
 z = model.goal_inference(next_obs=goal_obs)
 
-observation, _ = env.reset()
-frames = [env.render()]
+# Create a new environment with RecordVideo wrapper for goal inference example
+goal_video_dir = os.path.join(os.getcwd(), "videos_goal_inference")
+os.makedirs(goal_video_dir, exist_ok=True)
+
+env_goal, _ = make_humenv(
+    num_envs=1,
+    wrappers=[
+        FlattenObservation,
+        transform_obs_wrapper,
+        RecordEpisodeStatistics,
+        lambda env: RecordVideo(env, goal_video_dir, episode_trigger=lambda x: True)
+    ],
+    state_init="Default",
+)
+
+observation, _ = env_goal.reset()
 for i in range(30):
     action = model.act(observation, z, mean=True)
-    observation, reward, terminated, truncated, info = env.step(action.cpu().numpy().ravel())
-    frames.append(env.render())
+    observation, reward, terminated, truncated, info = env_goal.step(action.cpu().numpy().ravel())
+    if terminated or truncated:
+        observation, _ = env_goal.reset()
 
-media.show_video(frames, fps=30)
+print(f"Goal inference video recording saved to {goal_video_dir}")
 
 if __name__ == "__main__":
     print("Running Meta Motivo Tutorial") 
