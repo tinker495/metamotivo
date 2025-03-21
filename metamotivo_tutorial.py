@@ -183,6 +183,7 @@ os.makedirs(reward_video_dir, exist_ok=True)
 
 env_reward, _ = make_humenv(
     num_envs=1,
+    unbalanced=unbalanced,
     wrappers=[
         FlattenObservation,
         transform_obs_wrapper,
@@ -241,6 +242,7 @@ os.makedirs(goal_video_dir, exist_ok=True)
 
 env_goal, _ = make_humenv(
     num_envs=1,
+    unbalanced=unbalanced,
     wrappers=[
         FlattenObservation,
         transform_obs_wrapper,
