@@ -1,0 +1,3 @@
+[submodule "humenv"]
+	path = humenv
+	url = https://github.com/tinker495/humenv.git
