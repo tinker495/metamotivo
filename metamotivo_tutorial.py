@@ -67,7 +67,7 @@ print(f"z norm / sqrt(d): {torch.norm(z) / math.sqrt(z.shape[-1])}")
 observation, _ = env.reset()
 
 # Run the episode and let RecordVideo wrapper handle recording
-for i in range(30):
+for i in range(3000):
     action = model.act(observation, z, mean=True)
     observation, reward, terminated, truncated, info = env.step(action.cpu().numpy().ravel())
     if terminated or truncated:
@@ -190,7 +190,7 @@ env_reward, _ = make_humenv(
 )
 
 observation, _ = env_reward.reset()
-for i in range(30):
+for i in range(3000):
     action = model.act(observation, z, mean=True)
     observation, reward, terminated, truncated, info = env_reward.step(action.cpu().numpy().ravel())
     if terminated or truncated:
@@ -248,7 +248,7 @@ env_goal, _ = make_humenv(
 )
 
 observation, _ = env_goal.reset()
-for i in range(30):
+for i in range(3000):
     action = model.act(observation, z, mean=True)
     observation, reward, terminated, truncated, info = env_goal.step(action.cpu().numpy().ravel())
     if terminated or truncated:
@@ -257,4 +257,10 @@ for i in range(30):
 print(f"Goal inference video recording saved to {goal_video_dir}")
 
 if __name__ == "__main__":
-    print("Running Meta Motivo Tutorial") 
+    print("Running Meta Motivo Tutorial")
+    # Close all environments explicitly to avoid cleanup errors
+    env.close()
+    if 'env_reward' in locals():
+        env_reward.close()
+    if 'env_goal' in locals():
+        env_goal.close() 
