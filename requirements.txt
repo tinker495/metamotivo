@@ -1,6 +1,7 @@
 packaging
 huggingface_hub
 gymnasium
+gymnasium[other]
 torch
 mediapy
 h5py
