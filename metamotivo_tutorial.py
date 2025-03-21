@@ -24,6 +24,9 @@ import numpy as np
 import os
 
 unbalanced = True
+camera = "front_side" # 'front' or 'front_side'
+render_width = 640 * 4
+render_height = 480 * 4
 
 # ## Model download
 # The first step is to download the model. We show how to use HuggingFace hub for that.
@@ -53,6 +56,9 @@ os.makedirs(video_dir, exist_ok=True)
 env, _ = make_humenv(
     num_envs=1,
     unbalanced=unbalanced,
+    camera=camera,
+    render_width=render_width,
+    render_height=render_height,
     wrappers=[
         FlattenObservation,
         transform_obs_wrapper,
@@ -184,6 +190,9 @@ os.makedirs(reward_video_dir, exist_ok=True)
 env_reward, _ = make_humenv(
     num_envs=1,
     unbalanced=unbalanced,
+    camera=camera,
+    render_width=render_width,
+    render_height=render_height,
     wrappers=[
         FlattenObservation,
         transform_obs_wrapper,
@@ -243,6 +252,9 @@ os.makedirs(goal_video_dir, exist_ok=True)
 env_goal, _ = make_humenv(
     num_envs=1,
     unbalanced=unbalanced,
+    camera=camera,
+    render_width=render_width,
+    render_height=render_height,
     wrappers=[
         FlattenObservation,
         transform_obs_wrapper,
