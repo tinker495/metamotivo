@@ -23,6 +23,8 @@ from pathlib import Path
 import numpy as np
 import os
 
+unbalanced = True
+
 # ## Model download
 # The first step is to download the model. We show how to use HuggingFace hub for that.
 model = FBcprModel.from_pretrained("facebook/metamotivo-S-1")
@@ -50,6 +52,7 @@ os.makedirs(video_dir, exist_ok=True)
 
 env, _ = make_humenv(
     num_envs=1,
+    unbalanced=unbalanced,
     wrappers=[
         FlattenObservation,
         transform_obs_wrapper,
