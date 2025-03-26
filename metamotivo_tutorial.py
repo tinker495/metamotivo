@@ -25,8 +25,8 @@ import os
 
 unbalanced = True
 camera = "front_side" # 'front' or 'front_side'
-render_width = 640 * 4
-render_height = 480 * 4
+render_width = 640 * 2
+render_height = 480 * 2
 
 # ## Model download
 # The first step is to download the model. We show how to use HuggingFace hub for that.

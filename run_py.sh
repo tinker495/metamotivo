@@ -1,0 +1,1 @@
+xvfb-run -a python metamotivo_tutorial.py
