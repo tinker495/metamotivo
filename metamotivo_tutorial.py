@@ -23,8 +23,8 @@ from pathlib import Path
 import numpy as np
 import os
 
-unbalanced = True
-camera = "front_side" # 'front' or 'front_side'
+unbalanced = False
+camera = "front" # 'front' or 'front_side'
 render_width = 640 * 2
 render_height = 480 * 2
 

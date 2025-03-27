@@ -6,3 +6,4 @@ torch
 mediapy
 h5py
 numpy 
+POT
