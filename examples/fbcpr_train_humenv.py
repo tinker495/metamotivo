@@ -190,6 +190,7 @@ class Workspace:
         train_env, mp_info = make_humenv(
             num_envs=self.cfg.online_parallel_envs,
             # vectorization_mode="sync",
+            unbalanced=True,
             wrappers=[
                 gymnasium.wrappers.FlattenObservation,
                 lambda env: TimeAwareObservation(env, flatten=False),
@@ -416,6 +417,7 @@ if __name__ == "__main__":
 
     env, _ = make_humenv(
         num_envs=1,
+        unbalanced=True,
         vectorization_mode="sync",
         wrappers=[gymnasium.wrappers.FlattenObservation],
         render_width=320,

@@ -18,7 +18,8 @@ import numpy as np
 import os
 
 # Configuration
-device = "cpu"
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"Using device: {device}")
 unbalanced = True
 camera = "front"
 render_width = 640 * 2
