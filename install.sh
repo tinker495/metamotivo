@@ -11,3 +11,7 @@ pip install humenv/.
 wget https://huggingface.co/datasets/Tinker/testing_motivo/resolve/main/datas.zip
 unzip datas.zip
 rm datas.zip
+
+wget https://huggingface.co/datasets/Tinker/testing_motivo/resolve/main/motivo-S-unbalanced.zip
+unzip motivo-S-unbalanced.zip
+rm motivo-S-unbalanced.zip
